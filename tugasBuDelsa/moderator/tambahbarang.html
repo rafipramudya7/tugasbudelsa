@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Barang</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        form {
+            width: 100%;
+            max-width: 500px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        select, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .debug {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .debug p {
+            margin: 0;
+            padding: 0;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h2>Tambah Barang</h2>
+    <form action="process_tambah_barang.php" method="POST">
+        <label for="nama">Nama:</label>
+        <select id="nama" name="nama" required>
+            <option value="">Pilih Nama</option>
+        </select>
+
+        <label for="jenisbarang">Jenis Barang:</label>
+        <input type="text" id="jenisbarang" name="jenisbarang" required>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <!-- <div class="debug" id="debug"></div> -->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var select = document.getElementById("nama");
+            var debug = document.getElementById("debug");
+
+            // Mengambil data dari server
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'tambahbarang.php', true);
+            xhr.onload = function () {
+                if (this.status === 200) {
+                    var response = JSON.parse(this.responseText);
+
+                    if (response.error) {
+                        // debug.innerHTML = "<p>Kesalahan: " + response.error + "</p>";
+                    } else if (response.message) {
+                        // debug.innerHTML = "<p>" + response.message + "</p>";
+                    } else {
+                        // Isi dropdown dengan nama dari response
+                        response.forEach(function(name) {
+                            var option = document.createElement("option");
+                            option.value = name;
+                            option.textContent = name;
+                            select.appendChild(option);
+                        });
+                    }
+                } else {
+                    // debug.innerHTML = "<p>Gagal memuat data: " + this.status + "</p>";
+                }
+            };
+            xhr.onerror = function() {
+                // debug.innerHTML = "<p>Permintaan AJAX gagal.</p>";
+            };
+            xhr.send();
+        });
+    </script>
+</body>
+</html>

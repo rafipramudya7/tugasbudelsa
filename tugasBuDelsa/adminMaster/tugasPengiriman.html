@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Pengiriman Barang</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Styling untuk tombol "Tambah Data" */
+        #addDataButton {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 10px;
+            margin-right: 10px;
+        }
+
+        #addDataButton:hover {
+            background-color: #45a049;
+        }
+
+        /* Styling untuk live search */
+        #searchInput {
+            padding: 10px;
+            font-size: 16px;
+            width: 300px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        /* Styling untuk highlight huruf yang dicari */
+        .highlight {
+            background-color: yellow;
+            font-weight: bold;
+        }
+
+        /* Styling untuk tombol edit dan delete */
+        .edit-btn, .delete-btn {
+            background-color: #4CAF50; /* Green for edit */
+            color: white;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .delete-btn {
+            background-color: #f44336; /* Red for delete */
+        }
+
+        .edit-btn:hover {
+            background-color: #45a049;
+        }
+
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+
+    </style>
+</head>
+<body>
+
+<h2>Data Pengiriman Barang</h2>
+
+<div style="display: flex; justify-content: flex-start;">
+    <button id="addDataButton" onclick="window.location.href='addData.html'">Tambah Data</button>
+</div>
+<div style="display: flex; justify-content: center; margin-top: 10px;">
+    <input type="text" id="searchInput" placeholder="Cari berdasarkan nama atau nomor HP...">
+</div>
+
+
+<div id="scrolling-container">
+    <!-- Data dari PHP akan dimuat di sini -->
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let scrollingContainer = document.getElementById('scrolling-container');
+        let searchInput = document.getElementById('searchInput');
+
+        if (!scrollingContainer || !searchInput) {
+            console.error("Elemen dengan ID 'scrolling-container' atau 'searchInput' tidak ditemukan.");
+            return;
+        }
+
+        var url = "Data.php";
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('GET', url, true);
+        xhr.onload = async function () {
+            if (this.status === 200) {
+                scrollingContainer.innerHTML = this.responseText;
+
+                // Tambahkan event handler untuk tombol delete
+                document.querySelectorAll(".delete-btn").forEach(button => {
+                    button.addEventListener("click", function() {
+                        var id = this.dataset.id;
+                        if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
+                            deleteData(id);
+                        }
+                    });
+                });
+
+                // Tambahkan live search
+                const rows = document.querySelectorAll("#scrolling-container table tr");
+                searchInput.addEventListener("keyup", function() {
+                    const filter = searchInput.value.toLowerCase();
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll("td");
+                        let rowMatches = false;
+                        cells.forEach(cell => {
+                            const text = cell.textContent;
+                            const lowerText = text.toLowerCase();
+                            if (lowerText.indexOf(filter) > -1) {
+                                rowMatches = true;
+                                cell.innerHTML = highlightText(text, filter);
+                            } else {
+                                cell.innerHTML = text; // Reset content if it does not match
+                            }
+                        });
+                        row.style.display = rowMatches ? "" : "none";
+                    });
+                });
+
+            } else {
+                console.error("Gagal memuat data:", this.status);
+            }
+        };
+
+        xhr.onerror = function() {
+            console.error("Permintaan AJAX gagal.");
+        };
+
+        xhr.send();
+    });
+
+    function highlightText(text, search) {
+        const regex = new RegExp(`(${search})`, 'gi');
+        return text.replace(regex, '<span class="highlight">$1</span>');
+    }
+
+    function deleteData(id) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "deleteData.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                alert("Data berhasil dihapus!");
+                location.reload(); // Muat ulang halaman untuk memperbarui data
+            } else {
+                alert("Gagal menghapus data. Coba lagi.");
+            }
+        };
+        xhr.send("id=" + id);
+    }
+</script>
+
+</body>
+</html>

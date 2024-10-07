@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Data</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        input, select {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Edit Data</h2>
+
+    <form id="editForm">
+        <input type="hidden" id="id" name="id">
+        <label for="nama">Nama:</label>
+        <input type="text" id="nama" name="nama">
+
+        <label for="kelas">Kelas:</label>
+        <input type="text" id="kelas" name="kelas">
+
+        <label for="nomerHp">Nomor HP:</label>
+        <input type="text" id="nomerHp" name="nomerHp">
+
+        <label for="status">Status:</label>
+        <select id="status" name="status">
+            <option value="0">Belum</option>
+            <option value="1">Pending</option>
+            <option value="2">Valid</option>
+        </select>
+
+        <label for="jenisBarang">Jenis Barang:</label>
+        <input type="text" id="jenisBarang" name="jenisBarang">
+
+        <label for="tanggal">Tanggal:</label>
+        <input type="text" id="tanggal" name="tanggal">
+
+        <button type="submit">Update Data</button>
+    </form>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+
+            if (id) {
+                fetch('getData.php?id=' + id)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('id').value = data.id;
+                        document.getElementById('nama').value = data.nama;
+                        document.getElementById('kelas').value = data.kelas;
+                        document.getElementById('nomerHp').value = data.nomerHp;
+                        document.getElementById('status').value = data.status;
+                        document.getElementById('jenisBarang').value = data.jenisBarang;
+                        document.getElementById('tanggal').value = data.tanggal;
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            document.getElementById('editForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+
+                fetch('update.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    alert('Data berhasil diperbarui');
+        window.location.href = 'moderator.html';                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    </script>
+
+</body>
+</html>
